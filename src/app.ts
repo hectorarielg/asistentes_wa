@@ -124,6 +124,11 @@ const welcomeFlow = addKeyword<BaileysProvider, MemoryDB>(EVENTS.WELCOME)
  * @returns {Promise<void>}
  */
 const main = async () => {
+
+    console.log('🚀 Variables cargadas:');
+    console.log('ASSISTANT_ID:', process.env.ASSISTANT_ID);
+    console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY);
+    console.log('GOOGLE_SHEETS_WEBHOOK:', process.env.GOOGLE_SHEETS_WEBHOOK);
     /**
      * Flujo del bot
      * @type {import('@builderbot/bot').Flow<BaileysProvider, MemoryDB>}
