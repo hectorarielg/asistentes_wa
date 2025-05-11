@@ -50,11 +50,16 @@ const processUserMessage = async (ctx, { flowDynamic, state, provider }) => {
     const response = await toAsk(ASSISTANT_ID, ctx.body, state);
 
     // Split the response into chunks and send them sequentially
-    const chunks = response.split(/\n\n+/);
-    for (const chunk of chunks) {
-        const cleanedChunk = chunk.trim().replace(/【.*?】[ ] /g, "");
-        await flowDynamic([{ body: cleanedChunk }]);
-    }
+   const chunks = response.split(/\n\n+/);
+for (const chunk of chunks) {
+    const cleanedChunk = chunk.trim().replace(/【.*?】[ ] /g, "");
+
+    // 👇 Evitar mostrar el comando de guardar
+    if (cleanedChunk.startsWith('#guardar(')) continue;
+
+    await flowDynamic([{ body: cleanedChunk }]);
+}
+
 
   const match = response.match(/#guardar\((.*?)\)/);
 if (match) {
