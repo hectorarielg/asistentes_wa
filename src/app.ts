@@ -12,6 +12,18 @@ const ASSISTANT_ID = process.env.ASSISTANT_ID ?? ''
 const userQueues = new Map();
 const userLocks = new Map(); // New lock mechanism
 
+// Enviar datos a Sheets
+const sendToGoogleSheets = async (data: { nombre: string, correo: string, tiponegocio: string }) => {
+    await fetch('https://script.google.com/macros/s/AKfycbzh7it0YgLLDuzJmQKMHo07x0wJpfIndv0CWboqQDAZXrML7zD7vSSE_JVnfjmcWTk/exec', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+};
+
+
 /**
  * Function to process the user's message by sending it to the OpenAI API
  * and sending the response back to the user.
@@ -26,6 +38,18 @@ const processUserMessage = async (ctx, { flowDynamic, state, provider }) => {
         const cleanedChunk = chunk.trim().replace(/【.*?】[ ] /g, "");
         await flowDynamic([{ body: cleanedChunk }]);
     }
+
+    const match = response.match(/#guardar\((.*?)\)/); // Guardar datos en sheets
+if (match) {
+    const params = Object.fromEntries(
+        match[1].split(',').map(pair => {
+            const [key, value] = pair.split('=');
+            return [key.trim(), value.trim()];
+        })
+    );
+    await sendToGoogleSheets(params);
+}
+
 };
 
 /**
