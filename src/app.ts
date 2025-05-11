@@ -14,13 +14,20 @@ const userLocks = new Map(); // New lock mechanism
 
 // Enviar datos a Sheets
 const sendToGoogleSheets = async (data: { nombre: string, correo: string, tipo: string }) => {
-    await fetch('https://script.google.com/macros/s/AKfycbzh7it0YgLLDuzJmQKMHo07x0wJpfIndv0CWboqQDAZXrML7zD7vSSE_JVnfjmcWTk/exec', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
+    try {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbwtgX54TlZfouegH9m8Tt4tSJZ5ikUiKJL4MH7IA6iHov6e5ybrCxXCashgi5_bnwE/exec', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.text();
+        console.log('✅ Respuesta del Web App:', result);
+    } catch (error) {
+        console.error('❌ Error enviando a Sheets:', error);
+    }
 };
 
 
@@ -39,7 +46,7 @@ const processUserMessage = async (ctx, { flowDynamic, state, provider }) => {
         await flowDynamic([{ body: cleanedChunk }]);
     }
 
-    const match = response.match(/#guardar\((.*?)\)/);
+  const match = response.match(/#guardar\((.*?)\)/);
 if (match) {
     const entries = match[1].split(',').map(pair => {
         const [key, value] = pair.split('=');
@@ -47,15 +54,17 @@ if (match) {
     });
     const rawParams = Object.fromEntries(entries);
 
-    // 👇 Este objeto coincide con el tipo esperado
     const formattedParams: { nombre: string, correo: string, tipo: string } = {
         nombre: rawParams.nombre || '',
         correo: rawParams.correo || '',
         tipo: rawParams.tipo || ''
     };
 
+    console.log('📤 Enviando datos a Sheets:', formattedParams);
+
     await sendToGoogleSheets(formattedParams);
 }
+
 
 
 
