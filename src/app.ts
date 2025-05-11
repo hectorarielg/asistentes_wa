@@ -13,22 +13,31 @@ const userQueues = new Map();
 const userLocks = new Map(); // New lock mechanism
 
 // Enviar datos a Sheets
-const sendToGoogleSheets = async (data: { nombre: string, correo: string, tipo: string }) => {
-    try {
-        const response = await fetch(process.env.GOOGLE_SHEETS_WEBHOOK!, {
-            method: 'POST',
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+const sendToGoogleSheets = async (data: {
+  nombre: string;
+  correo: string;
+  tipo: string;
+  whatsapp: string;
+}) => {
+  try {
+    console.log('📤 Enviando a:', process.env.GOOGLE_SHEETS_WEBHOOK);
+    console.log('📦 Datos:', data);
 
-        const result = await response.text();
-        console.log('✅ Respuesta del Web App:', result);
-    } catch (error) {
-        console.error('❌ Error enviando a Sheets:', error);
-    }
+    const response = await fetch(process.env.GOOGLE_SHEETS_WEBHOOK!, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const result = await response.text();
+    console.log('✅ Respuesta del Web App:', result);
+  } catch (error) {
+    console.error('❌ Error enviando a Sheets:', error);
+  }
 };
+
 
 
 
@@ -55,11 +64,13 @@ if (match) {
     });
     const rawParams = Object.fromEntries(entries);
 
-    const formattedParams: { nombre: string, correo: string, tipo: string } = {
-        nombre: rawParams.nombre || '',
-        correo: rawParams.correo || '',
-        tipo: rawParams.tipo || ''
-    };
+    const formattedParams = {
+  nombre: rawParams.nombre || '',
+  correo: rawParams.correo || '',
+  tipo: rawParams.tipo || '',
+  whatsapp: ctx.from
+};
+
 
     console.log('📤 Enviando datos a Sheets:', formattedParams);
 
