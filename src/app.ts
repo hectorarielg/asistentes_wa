@@ -47,15 +47,16 @@ if (match) {
     });
     const rawParams = Object.fromEntries(entries);
 
-    // Conversión y tipado explícito para TypeScript
-    const formattedParams: { nombre: string, correo: string, tiponegocio: string } = {
+    // 👇 Este objeto coincide con el tipo esperado
+    const formattedParams: { nombre: string, correo: string, tipo: string } = {
         nombre: rawParams.nombre || '',
         correo: rawParams.correo || '',
-        tipo: rawParams.tipo || '' // si usas "tipo" en el prompt
+        tipo: rawParams.tipo || ''
     };
 
     await sendToGoogleSheets(formattedParams);
 }
+
 
 
 };
