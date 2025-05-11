@@ -51,7 +51,7 @@ if (match) {
     const formattedParams: { nombre: string, correo: string, tiponegocio: string } = {
         nombre: rawParams.nombre || '',
         correo: rawParams.correo || '',
-        tiponegocio: rawParams.tipo || '' // si usas "tipo" en el prompt
+        tipo: rawParams.tipo || '' // si usas "tipo" en el prompt
     };
 
     await sendToGoogleSheets(formattedParams);
