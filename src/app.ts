@@ -13,7 +13,7 @@ const userQueues = new Map();
 const userLocks = new Map(); // New lock mechanism
 
 // Enviar datos a Sheets
-const sendToGoogleSheets = async (data: { nombre: string, correo: string, tiponegocio: string }) => {
+const sendToGoogleSheets = async (data: { nombre: string, correo: string, tipo: string }) => {
     await fetch('https://script.google.com/macros/s/AKfycbzh7it0YgLLDuzJmQKMHo07x0wJpfIndv0CWboqQDAZXrML7zD7vSSE_JVnfjmcWTk/exec', {
         method: 'POST',
         body: JSON.stringify(data),
@@ -39,16 +39,24 @@ const processUserMessage = async (ctx, { flowDynamic, state, provider }) => {
         await flowDynamic([{ body: cleanedChunk }]);
     }
 
-    const match = response.match(/#guardar\((.*?)\)/); // Guardar datos en sheets
+    const match = response.match(/#guardar\((.*?)\)/);
 if (match) {
-    const params = Object.fromEntries(
-        match[1].split(',').map(pair => {
-            const [key, value] = pair.split('=');
-            return [key.trim(), value.trim()];
-        })
-    );
-    await sendToGoogleSheets(params);
+    const entries = match[1].split(',').map(pair => {
+        const [key, value] = pair.split('=');
+        return [key.trim(), value.trim()];
+    });
+    const rawParams = Object.fromEntries(entries);
+
+    // Conversión y tipado explícito para TypeScript
+    const formattedParams: { nombre: string, correo: string, tiponegocio: string } = {
+        nombre: rawParams.nombre || '',
+        correo: rawParams.correo || '',
+        tiponegocio: rawParams.tipo || '' // si usas "tipo" en el prompt
+    };
+
+    await sendToGoogleSheets(formattedParams);
 }
+
 
 };
 
