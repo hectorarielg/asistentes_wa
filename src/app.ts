@@ -47,13 +47,22 @@ const sendToGoogleSheets = async (data: {
  * and sending the response back to the user.
  */
 const processUserMessage = async (ctx, { flowDynamic, state, provider }) => {
-    await typing(ctx, provider);
-    const response = await toAsk(ASSISTANT_ID, ctx.body, state);
+  await typing(ctx, provider);
+
+  // Generar saludo según hora/lada
+  const saludo = getSaludoDeBienvenida(ctx);
+
+  // Combinar saludo con el mensaje del usuario
+  const mensajeConSaludo = `${saludo} ${ctx.body}`;
+
+  // Enviar al asistente con saludo incluido
+  const response = await toAsk(ASSISTANT_ID, mensajeConSaludo, state);
 
     // Split the response into chunks and send them sequentially
    const chunks = response.split(/\n\n+/);
 for (const chunk of chunks) {
     const cleanedChunk = chunk.trim().replace(/【.*?】[ ] /g, "");
+  
 
     // 👇 Evitar mostrar el comando de guardar
     if (cleanedChunk.startsWith('#guardar(')) continue;
@@ -82,9 +91,6 @@ if (match) {
 
     await sendToGoogleSheets(formattedParams);
 }
-
-
-
 
 };
 
@@ -122,8 +128,9 @@ const handleQueue = async (userId) => {
 const welcomeFlow = addKeyword<BaileysProvider, MemoryDB>(EVENTS.WELCOME)
     .addAction(async (ctx, { flowDynamic, state, provider }) => {
 
-      const saludo = getSaludoDeBienvenida(ctx);
-await flowDynamic([{ body: saludo }]);
+      /* COMIENZA CON UN SALUDO DEPENDIENDO LA HORA*/
+      /*const saludo = getSaludoDeBienvenida(ctx);
+await flowDynamic([{ body: saludo }]);*/
         
       const userId = ctx.from; // Use the user's ID to create a unique queue for each user
 
