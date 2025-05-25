@@ -1,4 +1,3 @@
-# Image size ~ 400MB
 FROM node:21-alpine3.18 as builder
 
 WORKDIR /app
@@ -7,19 +6,13 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 ENV PNPM_HOME=/usr/local/bin
 
 COPY . .
-
 COPY package*.json *-lock.yaml ./
 
+# 🛠 Separamos pasos para ver qué falla
 RUN apk add --no-cache --virtual .gyp python3 make g++
 RUN apk add --no-cache git
-
-# Habilita pnpm
 RUN pnpm install
-
-# 🚨 Aquí sabrás si tu build falla
 RUN pnpm run build
-
-# Limpieza
 RUN apk del .gyp
 
 FROM node:21-alpine3.18 as deploy
@@ -34,7 +27,7 @@ COPY --from=builder /app/assets ./assets
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/*.json /app/*-lock.yaml ./
 
-RUN corepack enable && corepack prepare pnpm@latest --activate 
+RUN corepack enable && corepack prepare pnpm@latest --activate
 ENV PNPM_HOME=/usr/local/bin
 RUN mkdir /app/tmp
 RUN npm cache clean --force && pnpm install --production --ignore-scripts \
