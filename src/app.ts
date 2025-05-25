@@ -4,6 +4,7 @@ import { MemoryDB } from '@builderbot/bot'
 import { BaileysProvider } from '@builderbot/provider-baileys'
 import { toAsk, httpInject } from "@builderbot-plugins/openai-assistants"
 import { typing } from "./utils/presence"
+import { getSaludoDeBienvenida } from './utils/presence';
 
 /** Puerto en el que se ejecutará el servidor */
 const PORT = process.env.PORT ?? 3008
@@ -117,9 +118,14 @@ const handleQueue = async (userId) => {
  * Flujo de bienvenida que maneja las respuestas del asistente de IA
  * @type {import('@builderbot/bot').Flow<BaileysProvider, MemoryDB>}
  */
+
 const welcomeFlow = addKeyword<BaileysProvider, MemoryDB>(EVENTS.WELCOME)
     .addAction(async (ctx, { flowDynamic, state, provider }) => {
-        const userId = ctx.from; // Use the user's ID to create a unique queue for each user
+
+      const saludo = getSaludoDeBienvenida(ctx);
+await flowDynamic([{ body: saludo }]);
+        
+      const userId = ctx.from; // Use the user's ID to create a unique queue for each user
 
         if (!userQueues.has(userId)) {
             userQueues.set(userId, []);
