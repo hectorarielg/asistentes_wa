@@ -1,4 +1,4 @@
-import { obtenerSaludoPorLada } from './utils/getSaludoPorLada'
+import { obtenerSaludoPorLada } from './getSaludoPorLada'
 
 const typing = async function (ctx: any, provider: any) {
     if (provider && provider?.vendor && provider.vendor?.sendPresenceUpdate) {
