@@ -10,13 +10,17 @@ COPY . .
 
 COPY package*.json *-lock.yaml ./
 
-RUN apk add --no-cache --virtual .gyp \
-        python3 \
-        make \
-        g++ \
-    && apk add --no-cache git \
-    && pnpm install && pnpm run build \
-    && apk del .gyp
+RUN apk add --no-cache --virtual .gyp python3 make g++
+RUN apk add --no-cache git
+
+# Habilita pnpm
+RUN pnpm install
+
+# 🚨 Aquí sabrás si tu build falla
+RUN pnpm run build
+
+# Limpieza
+RUN apk del .gyp
 
 FROM node:21-alpine3.18 as deploy
 
